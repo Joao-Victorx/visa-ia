@@ -8,16 +8,15 @@ class AnalisarDocumentoUseCase:
         self.ocr_gateway = ocr_gateway
         self.ia_service = ia_service
 
-    def executar(self, arquivo_bytes: bytes, nome_arquivo: str):  # Adicione o nome_arquivo aqui
-        # Repasse o nome do arquivo para o gateway
+    def executar(self, arquivo_bytes: bytes, nome_arquivo: str):
+        # Agora o gateway recebe os bytes E o nome para saber se é PDF
         texto = self.ocr_gateway.executar_ocr(arquivo_bytes, nome_arquivo)
 
-        # 2. Análise via IA (Hugging Face BERT-PT)
-        # Aqui a IA verifica se o texto condiz com as normas da VISA
+        # Chama a IA para analisar o texto extraído
         resultado_ia = self.ia_service.analisar_conformidade(texto)
 
         return {
             "texto": texto,
-            "status": "Conforme" if resultado_ia["score"] > 0.8 else "Divergente",
+            "status": "Divergente" if resultado_ia["score"] < 0.7 else "Conforme",
             "analise_detalhada": resultado_ia
         }
